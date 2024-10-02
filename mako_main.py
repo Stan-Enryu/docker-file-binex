@@ -2,59 +2,56 @@
 from pwn import *
 from mako.template import Template
 from shutil import copy
-import os 
+import os
 
 def create_file(args):
-	path, filename = os.path.split(__file__)
-	name_create_file=["./docker-compose.yml", "./Dockerfile"]
+    # Get the directory path of the current file
+    path = os.path.dirname(__file__)
+    
+    # Define template source files
+    src_file_names = ["docker-compose", "Dockerfile", "ynetd"]
+    if args.type == "pwnred":
+    	src_file_names[0] = "docker-compose.pwnred"
+    	src_file_names[1] = "Dockerfile.pwnred"
 
-	src_file=["/template/docker-compose", "/template/Dockerfile", "/template/startchall", "/template/xinetd","/template/run", "/template/ynetd"]
-	src_file = [ path+file for file in src_file] 
+    src_files = [os.path.join(path, "template", file) for file in src_file_names]
+    
+    # Output file names
+    output_files = ["./docker-compose.yml", "./Dockerfile"]
 
-	out=[]
-	
-	dict_data = {
-		"os" : args.os,
-		"name" : args.name,
-		"port" : args.port,
-		"file" : args.file,
-		"type" : args.type,
-	}
-	docker_compose = Template(filename=src_file[0])
-	out.append(docker_compose.render(**dict_data))
+    # Dictionary to be passed to the template renderer
+    dict_data = {
+        "os": args.os,
+        "name": args.name,
+        "port": args.port,
+        "file": args.file,
+        "type": args.type,
+        "flag": args.flag,
+    }
 
-	docker_file = Template(filename=src_file[1])
-	out.append(docker_file.render(**dict_data))
+    # Rendering docker-compose and Dockerfile templates
+    try:
+        out = [
+            Template(filename=src_files[0]).render(**dict_data),
+            Template(filename=src_files[1]).render(**dict_data),
+        ]
+    except Exception as e:
+        print(f"Error rendering templates: {e}")
+        return
 
-	
-	if args.type == "xinetd":
-		name_create_file.append("./startchall.sh")
-		name_create_file.append("./xinetd")
-		name_create_file.append("./run.sh")
+    # Additional handling based on the type
+    if args.type == "ynetd":
+        try:
+            # Using shutil.copy to copy the ynetd file
+            copy(src_files[2], "./ynetd")
+        except IOError as e:
+            print(f"Error copying ynetd: {e}")
+            return
 
-		start_chall = Template(filename=src_file[2])
-		out.append(start_chall.render())
-
-		xinetd = Template(filename=src_file[3])
-		out.append(xinetd.render(name=args.name,port=args.port,file=args.file))
-
-		run = Template(filename=src_file[4])
-		out.append(run.render(name=args.name,file=args.file))
-
-	elif args.type == "ynetd":
-
-		with open(src_file[5],"rb") as f:
-			data_ynetd = f.read()
-
-		with open("./ynetd","wb") as f:
-			f.write(data_ynetd)
-
-	elif args.type == "socat":
-		pass
-
-	name_create_file.append("./flag.txt")
-	out.append(args.flag)
-
-	for i in range(len(name_create_file)):
-		with open(name_create_file[i],"w") as f:
-			f.write(out[i])
+    # Write the rendered templates to the output files
+    try:
+        for i, output_file in enumerate(output_files):
+            with open(output_file, "w") as f:
+                f.write(out[i])
+    except IOError as e:
+        print(f"Error writing output files: {e}")

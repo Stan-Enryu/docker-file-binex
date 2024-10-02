@@ -1,0 +1,7 @@
+services:
+  ${name}:
+    build:
+      context: .
+    privileged: true
+    ports:
+      - "${port}:5000"

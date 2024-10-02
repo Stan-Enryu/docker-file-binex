@@ -5,7 +5,7 @@ import mako_main
 
 parser = ArgumentParser(prog='make-docker')
 
-parser.add_argument('type',help="For type", choices=["xinetd", "ynetd", "socat"])
+parser.add_argument('type',help="For type", choices=["xinetd", "ynetd", "socat","pwnred"])
 parser.add_argument('-n','--name',default="ctf",help="Default : ctf")
 parser.add_argument('-p','--port',default=11100,type=int,help="Default : 11100")
 parser.add_argument('-f','--file',default="chall",help="Default : chall")
