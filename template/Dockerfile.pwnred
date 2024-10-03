@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 AS base
+FROM ${os} AS base
 WORKDIR /app
 COPY ${file} run
 RUN echo "${flag}" > /app/flag.txt

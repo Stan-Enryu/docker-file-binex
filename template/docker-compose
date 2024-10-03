@@ -11,4 +11,7 @@ services:
       core: 0
     ports:
       - "${port}:${port}"
+% if type == 'xinetd':
     entrypoint: /etc/init.sh
+% endif
+

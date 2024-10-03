@@ -54,7 +54,7 @@ EXPOSE ${port}
 % if type == 'xinetd':
 RUN service xinetd restart
 % elif type == 'ynetd' :
-CMD ["/usr/bin/ynetd", "-p", "${port}", "/home/${name}/${file}"]
+CMD ["/usr/bin/ynetd", "-u","${name}", "-p", "${port}", "/home/${name}/${file}"]
 % elif type == 'socat' :
 CMD $
 CMD ["socat","TCP4-LISTEN:${port},reuseaddr,fork,su=${name}","EXEC:'/home/${name}/${file}'"]
