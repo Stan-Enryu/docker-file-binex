@@ -41,11 +41,11 @@ RUN chmod 750 /usr/bin/ynetd
 % elif type == 'socat' :
 % endif
 
-RUN chown -R root:${name} /home/${name}
 RUN chmod -R 750 /home/${name}
 RUN echo "${flag}" > ./flag.txt
 RUN chmod 440 flag.txt
 RUN mv flag.txt flag-$(md5sum flag.txt | awk '{print $1}').txt
+RUN chown -R root:${name} /home/${name}
 
 % if type != 'socat':
 EXPOSE ${port}
